@@ -1,33 +1,43 @@
 ---
 name: annotate
 description: Annotate screenshots with visual overlays — boxes, arrows, spotlights, and numbered flows. Use when the user needs to highlight, label, or call out specific elements on a screenshot. Triggers include requests to "annotate a screenshot", "highlight elements", "add arrows to a screenshot", "spotlight this section", "show the steps", "mark up this page", "label these buttons", or any task requiring visual annotation of browser screenshots. Works standalone or piped from agent-browser.
-allowed-tools: Bash(bun */src/cli.ts:*), Bash(annotate:*)
+allowed-tools: Bash(bun *)
 ---
 
 # Screenshot Annotation
 
 Post-process screenshots with clean visual annotations. Takes a screenshot image + element annotation data (from `agent-browser screenshot --annotate --json`) and produces annotated images.
 
-## Installation
+## How to Run
 
-Requires `bun` and `sharp`. From the project root:
+The CLI is a bundled script at `${CLAUDE_SKILL_DIR}/scripts/cli.js`. It requires `bun` and the `sharp` native dependency.
+
+**First-time setup** (install sharp):
 
 ```bash
-bun install
+cd ${CLAUDE_SKILL_DIR} && bun install
 ```
+
+**Run the CLI:**
+
+```bash
+bun ${CLAUDE_SKILL_DIR}/scripts/cli.js [args...]
+```
+
+All file path arguments (image, JSON, output) must be **absolute paths**.
 
 ## Core Workflow
 
 1. **Capture**: Take an annotated screenshot with agent-browser
-2. **Annotate**: Pipe or pass the output to `annotate` with a mode
+2. **Annotate**: Pipe or pass the output to the CLI with a mode
 
 ```bash
 # Pipe directly from agent-browser
-agent-browser screenshot --annotate --json | bun src/cli.ts --mode boxes -o annotated.png
+agent-browser screenshot --annotate --json | bun ${CLAUDE_SKILL_DIR}/scripts/cli.js --mode boxes -o /tmp/annotated.png
 
 # Or save and annotate separately
-agent-browser screenshot --annotate --json > shot.json
-bun src/cli.ts shot.json --mode spotlight --only e1 e5 -o spotlight.png
+agent-browser screenshot --annotate --json > /tmp/shot.json
+bun ${CLAUDE_SKILL_DIR}/scripts/cli.js /tmp/shot.json --mode spotlight --only e1 e5 -o /tmp/spotlight.png
 ```
 
 ## Annotation Modes
@@ -38,13 +48,13 @@ Rounded rectangles around elements with numbered pill labels. Best for showing a
 
 ```bash
 # All elements
-agent-browser screenshot --annotate --json | bun src/cli.ts --mode boxes
+agent-browser screenshot --annotate --json | bun ${CLAUDE_SKILL_DIR}/scripts/cli.js --mode boxes
 
 # Only specific elements, custom color
-agent-browser screenshot --annotate --json | bun src/cli.ts --mode boxes --only e5 e6 e11 --color "#8B5CF6"
+agent-browser screenshot --annotate --json | bun ${CLAUDE_SKILL_DIR}/scripts/cli.js --mode boxes --only e5 e6 e11 --color "#8B5CF6"
 
 # Small elements get min-box-size padding
-bun src/cli.ts shot.json --mode boxes --min-box-size 40
+bun ${CLAUDE_SKILL_DIR}/scripts/cli.js /tmp/shot.json --mode boxes --min-box-size 40
 ```
 
 ### Arrows
@@ -52,7 +62,7 @@ bun src/cli.ts shot.json --mode boxes --min-box-size 40
 Labels placed in a frame outside the screenshot with arrows pointing inward. Best for callouts with custom descriptions.
 
 ```bash
-agent-browser screenshot --annotate --json | bun src/cli.ts --mode arrows \
+agent-browser screenshot --annotate --json | bun ${CLAUDE_SKILL_DIR}/scripts/cli.js --mode arrows \
   --only e6 e11 e19 \
   --label e6="Start here" \
   --label e11="Deep dive" \
@@ -65,10 +75,10 @@ Dims everything except selected elements. Best for focusing attention on specifi
 
 ```bash
 # Spotlight with default blue border
-agent-browser screenshot --annotate --json | bun src/cli.ts --mode spotlight --only e13 e14 e15
+agent-browser screenshot --annotate --json | bun ${CLAUDE_SKILL_DIR}/scripts/cli.js --mode spotlight --only e13 e14 e15
 
 # Green border, heavier dim
-agent-browser screenshot --annotate --json | bun src/cli.ts --mode spotlight \
+agent-browser screenshot --annotate --json | bun ${CLAUDE_SKILL_DIR}/scripts/cli.js --mode spotlight \
   --only e19 e20 e21 --color "#10B981" --dim-opacity 0.7
 ```
 
@@ -77,19 +87,18 @@ agent-browser screenshot --annotate --json | bun src/cli.ts --mode spotlight \
 Numbered badges on elements showing a sequence of steps. Best for documenting user journeys or click paths.
 
 ```bash
-# Show steps with frame for badge overflow
-agent-browser screenshot --annotate --json | bun src/cli.ts --mode flow \
+agent-browser screenshot --annotate --json | bun ${CLAUDE_SKILL_DIR}/scripts/cli.js --mode flow \
   --only e6 e7 e11 e19 --frame 40
 ```
 
 ## Full Option Reference
 
 ```
-bun src/cli.ts [image] [annotations.json] [options]
+bun ${CLAUDE_SKILL_DIR}/scripts/cli.js [image] [annotations.json] [options]
 
 Arguments:
-  image              Screenshot PNG/JPG path
-  annotations        Annotations JSON path (or pipe via stdin)
+  image              Screenshot PNG/JPG path (absolute)
+  annotations        Annotations JSON path (absolute), or pipe via stdin
 
 Options:
   -m, --mode <mode>          boxes|arrows|spotlight|flow (default: boxes)
@@ -133,50 +142,31 @@ When using the agent-browser format (via file or stdin), the image path is extra
 
 ```bash
 agent-browser open https://example.com/signup
-agent-browser screenshot --annotate --json > signup.json
-bun src/cli.ts signup.json --mode flow --only e4 e5 e6 --frame 40 -o signup-flow.png
+agent-browser screenshot --annotate --json > /tmp/signup.json
+bun ${CLAUDE_SKILL_DIR}/scripts/cli.js /tmp/signup.json --mode flow --only e4 e5 e6 --frame 40 -o /tmp/signup-flow.png
 ```
 
 ### Highlight CTAs for a design review
 
 ```bash
-agent-browser screenshot --annotate --json | bun src/cli.ts --mode boxes \
-  --only e5 e6 --color "#8B5CF6" -o ctas.png
+agent-browser screenshot --annotate --json | bun ${CLAUDE_SKILL_DIR}/scripts/cli.js --mode boxes \
+  --only e5 e6 --color "#8B5CF6" -o /tmp/ctas.png
 ```
 
 ### Spotlight a form section
 
 ```bash
-agent-browser screenshot --annotate --json | bun src/cli.ts --mode spotlight \
-  --only e4 e5 e6 --dim-opacity 0.65 -o form-spotlight.png
+agent-browser screenshot --annotate --json | bun ${CLAUDE_SKILL_DIR}/scripts/cli.js --mode spotlight \
+  --only e4 e5 e6 --dim-opacity 0.65 -o /tmp/form-spotlight.png
 ```
 
 ### Annotated callouts for documentation
 
 ```bash
-agent-browser screenshot --annotate --json | bun src/cli.ts --mode arrows \
+agent-browser screenshot --annotate --json | bun ${CLAUDE_SKILL_DIR}/scripts/cli.js --mode arrows \
   --only e1 e3 e7 \
   --label e1="Navigation" \
   --label e3="Search bar" \
   --label e7="User menu" \
-  -o doc-callouts.png
-```
-
-## Programmatic Usage
-
-```typescript
-import { annotate } from "./src/annotate";
-import type { Annotation } from "./src/types";
-
-const annotations: Annotation[] = [
-  { ref: "e1", number: 1, role: "button", name: "Submit", box: { x: 100, y: 200, width: 150, height: 40 } },
-];
-
-const result = await annotate("screenshot.png", annotations, {
-  mode: "spotlight",
-  only: ["e1"],
-  color: "#10B981",
-});
-
-await Bun.write("output.png", result);
+  -o /tmp/doc-callouts.png
 ```

@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "bun run src/cli.ts",
     "demo": "bun run src/demo.ts",
-    "build": "bun build --compile src/cli.ts --outfile annotate"
+    "build": "bun build --compile src/cli.ts --outfile annotate",
+    "build:skill": "bun build src/cli.ts --outfile skills/annotate/scripts/cli.js --target=bun --external sharp"
   },
   "keywords": [
     "screenshot",

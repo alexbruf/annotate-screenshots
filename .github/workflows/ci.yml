@@ -25,5 +25,11 @@ jobs:
       - name: Test build compiles
         run: bun build --compile src/cli.ts --outfile annotate-test && rm annotate-test
 
+      - name: Build skill bundle
+        run: bun run build:skill
+
+      - name: Check skill bundle is up to date
+        run: git diff --exit-code skills/annotate/scripts/cli.js
+
       - name: Run demo (smoke test)
         run: bun run src/demo.ts

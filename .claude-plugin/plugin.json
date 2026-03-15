@@ -1,0 +1,10 @@
+{
+  "name": "annotate-screenshots",
+  "description": "Post-process screenshots with clean visual annotations — boxes, arrows, spotlights, and numbered flows",
+  "version": "0.1.0",
+  "author": {
+    "name": "Alex Bruf"
+  },
+  "repository": "https://github.com/alexbruf/agent-browser-nice-annotations",
+  "license": "MIT"
+}
