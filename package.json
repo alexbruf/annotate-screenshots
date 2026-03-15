@@ -1,0 +1,31 @@
+{
+  "name": "annotate-screenshots",
+  "version": "0.1.0",
+  "description": "Post-process screenshots with clean annotations — boxes, arrows, spotlights, and numbered flows",
+  "type": "module",
+  "bin": {
+    "annotate": "./src/cli.ts"
+  },
+  "scripts": {
+    "dev": "bun run src/cli.ts",
+    "demo": "bun run src/demo.ts",
+    "build": "bun build --compile src/cli.ts --outfile annotate"
+  },
+  "keywords": [
+    "screenshot",
+    "annotate",
+    "browser",
+    "agent-browser",
+    "overlay",
+    "arrows",
+    "spotlight"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "dependencies": {
+    "@types/sharp": "^0.32.0",
+    "sharp": "^0.34.5"
+  }
+}

@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - name: Type check
+        run: bun x tsc --noEmit
+
+      - name: Test build compiles
+        run: bun build --compile src/cli.ts --outfile annotate-test && rm annotate-test
+
+      - name: Run demo (smoke test)
+        run: bun run src/demo.ts
